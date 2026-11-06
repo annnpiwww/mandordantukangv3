@@ -16,8 +16,10 @@ function findStateDir(customDir) {
   }
   const home = os.homedir();
   const v3 = path.join(home, '.local/state/mandordantukangv3');
-  if (fs.existsSync(v3)) return v3;
   const v2 = path.join(home, '.local/state/mandordantukang');
+  // A dir without pairs/ has no live squad (e.g. created only by tests or logs).
+  for (const dir of [v3, v2]) if (fs.existsSync(path.join(dir, 'pairs'))) return dir;
+  if (fs.existsSync(v3)) return v3;
   if (fs.existsSync(v2)) return v2;
   return v3;
 }

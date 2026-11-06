@@ -111,6 +111,23 @@ GET `/snapshot.json` and SSE stream on `/events` emit snapshot JSON objects:
 }
 ```
 
+## Demo Video
+
+Play the scripted squad demo story directly in Orca or any browser:
+```
+http://127.0.0.1:24300/?cutscene=demo
+```
+
+Record the demo cutscene to H.264 MP4 (16:9 and 9:16 vertical):
+```bash
+node plugins/squad-farm/record-demo.mjs --vertical [--url http://127.0.0.1:24300/] [--out ~/Videos/squad-farm-demo.mp4]
+```
+
+Add tempo-synced sound effects and 8-bit BGM (stream copy, no re-encoding):
+```bash
+node plugins/squad-farm/add-sfx.mjs --video ~/Videos/squad-farm-demo.mp4 [--out ~/Videos/squad-farm-demo-sfx.mp4]
+```
+
 ## Limitations
 
 - **Token Counts**: Exist only where the bridge recorded usage metrics in `usage.jsonl`.

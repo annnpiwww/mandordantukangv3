@@ -36,6 +36,23 @@
   let cutsceneElapsed = 0;
   let urlCutsceneTriggered = false;
 
+  // Scripted demo cutscene state (?cutscene=demo)
+  let demoActive = false;
+  let demoStep = 0;
+  let demoStepElapsed = 0;
+  let demoSubtitle = '';
+  let demoCamera = null;
+  let demoEndCard = null;
+  let demoStartTime = 0;
+  window.__demoCues = [];
+
+  function emitCue(type, extra = {}) {
+    if (!demoActive) return;
+    const t = Math.max(0, performance.now() - demoStartTime);
+    const cue = { t: Math.round(t), type, ...extra };
+    window.__demoCues.push(cue);
+  }
+
   // Camera state in 384x216 world space
   const camera = {
     zoom: 1,
@@ -196,6 +213,323 @@
     });
   }
 
+  const DEMO_STEPS = [
+    // Step 0: [3.5s] Mandor reading at desk
+    {
+      duration: 3500,
+      enter() {
+        demoSubtitle = 'Mandor bagi tugas ke squad';
+        entities.mandor.pose = 'reading';
+        entities.mandor.bubble = 'Cek progress squad dulu...';
+        demoCamera = { zoom: 1.0, cx: BASE_W / 2, cy: BASE_H / 2 };
+        emitCue('scene', { text: demoSubtitle });
+        emitCue('typing', { action: 'start' });
+        emitCue('bubble', { role: 'mandor', text: entities.mandor.bubble });
+      }
+    },
+    // Step 1: [5.8s] Mandor walks to Coder desk
+    {
+      duration: 5800,
+      enter() {
+        demoSubtitle = 'Sidak dadakan ke meja Coder...';
+        entities.mandor.bubble = null;
+        entities.mandor.speed = 38;
+        entities.mandor.targetNode = 'desk_coder';
+        const p = B.findPath('mandor_desk', 'desk_coder');
+        entities.mandor.path = p.slice(1);
+        demoCamera = { zoom: 1.0, cx: BASE_W / 2, cy: BASE_H / 2 };
+        emitCue('scene', { text: demoSubtitle });
+        emitCue('walk_start', { role: 'mandor' });
+      }
+    },
+    // Step 2: [4.0s] Mandor inspects Coder
+    {
+      duration: 4000,
+      enter() {
+        demoSubtitle = 'Sidak: Mandor cek progress Coder.';
+        entities.mandor.path = [];
+        entities.mandor.isMoving = false;
+        entities.mandor.x = 116;
+        entities.mandor.y = 74;
+        entities.mandor.facing = 'right';
+        entities.mandor.pose = 'impatient';
+        entities.mandor.bubble = 'Kerja beneran nih? Bukan scroll Threads?';
+
+        entities.coder.facing = 'up';
+        entities.coder.pose = 'typing';
+        entities.coder.bubble = 'Lagi ngoding Bos, sumpah!';
+
+        demoCamera = { zoom: 1.6, cx: 130, cy: 50 };
+        emitCue('walk_stop', { role: 'mandor' });
+        emitCue('scene', { text: demoSubtitle });
+        emitCue('bubble', { role: 'mandor', text: entities.mandor.bubble });
+        emitCue('bubble', { role: 'coder', text: entities.coder.bubble });
+      }
+    },
+    // Step 3: [2.6s] Mandor walks to UI desk
+    {
+      duration: 2600,
+      enter() {
+        demoSubtitle = 'Mandor mampir ke meja UI...';
+        entities.mandor.bubble = null;
+        entities.coder.bubble = null;
+        entities.mandor.speed = 36;
+        entities.mandor.targetNode = 'desk_ui';
+        const p = B.findPath('work_aisle_mid', 'desk_ui');
+        entities.mandor.path = p.slice(1);
+        demoCamera = { zoom: 1.8, cx: 100, cy: 80 };
+        emitCue('scene', { text: demoSubtitle });
+        emitCue('walk_start', { role: 'mandor' });
+      }
+    },
+    // Step 4: [3.5s] Mandor inspects UI desk
+    {
+      duration: 3500,
+      enter() {
+        demoSubtitle = 'Sidak: Mandor cek progress UI.';
+        entities.mandor.path = [];
+        entities.mandor.isMoving = false;
+        entities.mandor.x = 84;
+        entities.mandor.y = 74;
+        entities.mandor.facing = 'left';
+        entities.mandor.pose = 'impatient';
+        entities.mandor.bubble = 'Desainnya mana?';
+
+        entities.ui.facing = 'up';
+        entities.ui.pose = 'typing';
+        entities.ui.bubble = 'Bentar Bos, lagi dipoles.';
+
+        demoCamera = { zoom: 1.6, cx: 70, cy: 50 };
+        emitCue('walk_stop', { role: 'mandor' });
+        emitCue('scene', { text: demoSubtitle });
+        emitCue('bubble', { role: 'mandor', text: entities.mandor.bubble });
+        emitCue('bubble', { role: 'ui', text: entities.ui.bubble });
+      }
+    },
+    // Step 5: [3.5s] Coder & Mandor walk to meeting room
+    {
+      duration: 3500,
+      enter() {
+        demoSubtitle = 'Coder selesai ngoding, setor ke meeting room...';
+        entities.mandor.bubble = null;
+        entities.ui.bubble = null;
+
+        entities.coder.speed = 60;
+        entities.coder.targetNode = 'meeting_2';
+        entities.coder.path = B.findPath('desk_coder', 'meeting_2').slice(1);
+
+        entities.mandor.speed = 65;
+        entities.mandor.targetNode = 'meeting_4';
+        entities.mandor.path = B.findPath('desk_ui', 'meeting_4').slice(1);
+
+        demoCamera = { zoom: 1.4, cx: 240, cy: 110 };
+        emitCue('scene', { text: demoSubtitle });
+        emitCue('typing', { action: 'stop' });
+        emitCue('walk_start', { role: 'coder' });
+      }
+    },
+    // Step 6: [3.8s] DONE cutscene in meeting room
+    {
+      duration: 3800,
+      enter() {
+        demoSubtitle = '';
+        entities.coder.path = [];
+        entities.coder.isMoving = false;
+        snapEntityToNode(entities.coder, 'meeting_2');
+        entities.coder.facing = 'right';
+
+        entities.mandor.path = [];
+        entities.mandor.isMoving = false;
+        snapEntityToNode(entities.mandor, 'meeting_4');
+        entities.mandor.facing = 'left';
+
+        queueCutscene({
+          type: 'DONE',
+          worker: 'coder',
+          subtitle: 'Coder menyerahkan hasil kerja...',
+          bubbleMandor: 'Coba sini dicek.',
+          bubbleWorker: 'Setor DONE, Bos!',
+          duration: 3800,
+          holdMid: false
+        });
+        emitCue('walk_stop', { role: 'coder' });
+        emitCue('done');
+        emitCue('bubble', { role: 'coder', text: 'Setor DONE, Bos!' });
+        emitCue('bubble', { role: 'mandor', text: 'Coba sini dicek.' });
+      }
+    },
+    // Step 7: [4.0s] REJECTED cutscene (MARAH)
+    {
+      duration: 4000,
+      enter() {
+        demoSubtitle = '';
+        queueCutscene({
+          type: 'REJECTED',
+          worker: 'coder',
+          subtitle: 'Mandor review hasil kerja...',
+          bubbleMandor: 'Ini apa?! Test merah! Ulang!',
+          bubbleWorker: 'Siap Bos, revisi...',
+          duration: 4000,
+          holdMid: false
+        });
+        emitCue('angry');
+        emitCue('bubble', { role: 'mandor', text: 'Ini apa?! Test merah! Ulang!' });
+        emitCue('bubble', { role: 'coder', text: 'Siap Bos, revisi...' });
+      }
+    },
+    // Step 8: [3.0s] Coder walks back to desk fast
+    {
+      duration: 3000,
+      enter() {
+        demoSubtitle = 'Coder buru-buru benerin bug...';
+        entities.mandor.bubble = null;
+        entities.coder.bubble = 'Aduh panik, gas fix!';
+        entities.coder.speed = 70;
+        entities.coder.targetNode = 'desk_coder';
+        entities.coder.path = B.findPath('meeting_2', 'desk_coder').slice(1);
+        demoCamera = { zoom: 1.5, cx: 180, cy: 90 };
+        emitCue('scene', { text: demoSubtitle });
+        emitCue('walk_start', { role: 'coder' });
+        emitCue('bubble', { role: 'coder', text: 'Aduh panik, gas fix!' });
+      }
+    },
+    // Step 9: [2.5s] Coder walks back to meeting room
+    {
+      duration: 2500,
+      enter() {
+        demoSubtitle = 'Coder kembali ke meeting room...';
+        entities.coder.speed = 85;
+        entities.coder.bubble = 'Dah hijau Bos!';
+        entities.coder.targetNode = 'meeting_2';
+        entities.coder.path = B.findPath('desk_coder', 'meeting_2').slice(1);
+        demoCamera = { zoom: 1.6, cx: 250, cy: 110 };
+        emitCue('walk_stop', { role: 'coder' });
+        emitCue('typing', { action: 'start' });
+        emitCue('scene', { text: demoSubtitle });
+        emitCue('walk_start', { role: 'coder' });
+        emitCue('bubble', { role: 'coder', text: 'Dah hijau Bos!' });
+      }
+    },
+    // Step 10: [4.0s] APPROVED cutscene
+    {
+      duration: 4000,
+      enter() {
+        demoSubtitle = '';
+        entities.coder.speed = B.WALK_SPEED;
+        entities.coder.path = [];
+        entities.coder.isMoving = false;
+        snapEntityToNode(entities.coder, 'meeting_2');
+        entities.coder.facing = 'right';
+
+        entities.mandor.path = [];
+        entities.mandor.isMoving = false;
+        snapEntityToNode(entities.mandor, 'meeting_4');
+        entities.mandor.facing = 'left';
+
+        queueCutscene({
+          type: 'APPROVED',
+          worker: 'coder',
+          subtitle: 'Test hijau. Approve.',
+          bubbleMandor: 'Mantap, rapi! Approve!',
+          bubbleWorker: 'Alhamdulillah!',
+          duration: 4000,
+          holdMid: false
+        });
+        emitCue('walk_stop', { role: 'coder' });
+        emitCue('typing', { action: 'stop' });
+        emitCue('approve');
+        emitCue('bubble', { role: 'mandor', text: 'Mantap, rapi! Approve!' });
+        emitCue('bubble', { role: 'coder', text: 'Alhamdulillah!' });
+      }
+    },
+    // Step 11: [3.5s] End card
+    {
+      duration: 3500,
+      enter() {
+        demoSubtitle = '';
+        demoCamera = { zoom: 1.0, cx: BASE_W / 2, cy: BASE_H / 2 };
+        showEndCard();
+        emitCue('endcard');
+      }
+    }
+  ];
+
+  function startDemoMode() {
+    demoActive = true;
+    demoStep = 0;
+    demoStepElapsed = 0;
+    demoStartTime = performance.now();
+    window.__demoCues = [];
+
+    for (const r of ['mandor', 'ui', 'coder', 'sec']) {
+      entities[r].hidden = false;
+      entities[r].initialized = true;
+      entities[r].bubble = null;
+      entities[r].path = [];
+      entities[r].isMoving = false;
+      entities[r].speed = B.WALK_SPEED;
+    }
+
+    snapEntityToNode(entities.mandor, 'mandor_desk');
+    entities.mandor.facing = 'down';
+    entities.mandor.pose = 'reading';
+
+    snapEntityToNode(entities.ui, 'desk_ui');
+    entities.ui.facing = 'up';
+    entities.ui.pose = 'typing';
+
+    snapEntityToNode(entities.coder, 'desk_coder');
+    entities.coder.facing = 'up';
+    entities.coder.pose = 'typing';
+
+    snapEntityToNode(entities.sec, 'desk_sec');
+    entities.sec.facing = 'up';
+    entities.sec.pose = 'typing';
+
+    demoCamera = { zoom: 1.0, cx: BASE_W / 2, cy: BASE_H / 2 };
+  }
+
+  function showEndCard() {
+    if (demoEndCard) return;
+    demoEndCard = document.createElement('div');
+    demoEndCard.id = 'demoEndCard';
+    demoEndCard.style.cssText = [
+      'position: absolute',
+      'inset: 0',
+      'display: flex',
+      'flex-direction: column',
+      'align-items: center',
+      'justify-content: center',
+      'background: rgba(10, 14, 23, 0.94)',
+      'z-index: 50',
+      'color: #ffffff',
+      'text-align: center',
+      'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    ].join('; ');
+
+    demoEndCard.innerHTML = `
+      <div style="font-size: 44px; font-weight: 800; color: #58a6ff; letter-spacing: 1.5px; margin-bottom: 12px; text-shadow: 0 0 24px rgba(88,166,255,0.45);">orca-squad</div>
+      <div style="font-size: 20px; color: #8b949e; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.5px;">github.com/annnpii/mandordantukangv3</div>
+    `;
+    farmViewport.appendChild(demoEndCard);
+  }
+
+  function updateDemo(dtMs) {
+    if (demoStep >= DEMO_STEPS.length) return;
+    const currentStep = DEMO_STEPS[demoStep];
+    if (demoStepElapsed === 0 && currentStep.enter) {
+      currentStep.enter();
+    }
+    demoStepElapsed += dtMs;
+    if (demoStepElapsed >= currentStep.duration) {
+      demoStep++;
+      demoStepElapsed = 0;
+      if (demoStep >= DEMO_STEPS.length) {
+        window.__demoDone = true;
+      }
+    }
+  }
+
   function checkUrlCutscene(snap) {
     if (urlCutsceneTriggered) return;
     const params = new URLSearchParams(window.location.search);
@@ -203,7 +537,12 @@
     if (!mode) return;
     urlCutsceneTriggered = true;
 
-    const targetTask = (snap.tasks && snap.tasks[0]) || { worker: 'coder', id: 't-demo' };
+    if (mode === 'demo') {
+      startDemoMode();
+      return;
+    }
+
+    const targetTask = (snap && snap.tasks && snap.tasks[0]) || { worker: 'coder', id: 't-demo' };
     const workerRole = targetTask.worker || 'coder';
     const workerLabel = ROLE_LABELS[workerRole] || 'Coder';
 
@@ -249,6 +588,13 @@
   }
 
   function diffSnapshot(newSnap) {
+    if (demoActive) {
+      for (const t of newSnap.tasks) {
+        previousTaskStates.set(t.id, { state: t.state, retries: t.retries, alert: t.alert });
+      }
+      return;
+    }
+
     if (!previousTaskStates.size) {
       for (const t of newSnap.tasks) {
         previousTaskStates.set(t.id, { state: t.state, retries: t.retries, alert: t.alert });
@@ -320,6 +666,7 @@
 
   function syncEntitiesFromSnapshot(snap, nowMs) {
     if (!snap) return;
+    if (demoActive) return;
     const roles = ['mandor', 'ui', 'coder', 'sec'];
 
     for (const role of roles) {
@@ -355,9 +702,9 @@
   }
 
   function stepEntities(dtSec) {
-    const speed = B.WALK_SPEED; // 32 px/s
     for (const role of ['mandor', 'ui', 'coder', 'sec']) {
       const ent = entities[role];
+      const speed = ent.speed || B.WALK_SPEED;
       if (ent.hidden || ent.path.length === 0) {
         ent.isMoving = false;
         continue;
@@ -497,17 +844,19 @@
     const bubbleItems = [];
 
     // 1. Offline desk plates for offline workers
-    for (const w of currentSnapshot.workers) {
-      if (w.online === false || w.activity === 'offline') {
-        const dCoord = DESK_COORDS[w.role];
-        if (dCoord) {
-          const vPos = worldToViewport(dCoord.x, dCoord.y);
-          const plate = document.createElement('div');
-          plate.className = 'offline-plate';
-          plate.textContent = `${ROLE_LABELS[w.role]} · Offline`;
-          plate.style.left = `${Math.round(vPos.x)}px`;
-          plate.style.top = `${Math.round(vPos.y)}px`;
-          hudOverlay.appendChild(plate);
+    if (!demoActive && currentSnapshot.workers) {
+      for (const w of currentSnapshot.workers) {
+        if (w.online === false || w.activity === 'offline') {
+          const dCoord = DESK_COORDS[w.role];
+          if (dCoord) {
+            const vPos = worldToViewport(dCoord.x, dCoord.y);
+            const plate = document.createElement('div');
+            plate.className = 'offline-plate';
+            plate.textContent = `${ROLE_LABELS[w.role]} · Offline`;
+            plate.style.left = `${Math.round(vPos.x)}px`;
+            plate.style.top = `${Math.round(vPos.y)}px`;
+            hudOverlay.appendChild(plate);
+          }
         }
       }
     }
@@ -602,8 +951,12 @@
     const BUBBLE_W = 168;
     const BUBBLE_H = 38;
 
+    const isCinematic = cinematicLayer.classList.contains('active');
+    const letterboxTopPx = isCinematic ? Math.round(farmViewport.clientHeight * 0.12) : 0;
+    const minTopY = Math.max(36, letterboxTopPx + 16);
+
     for (const item of bubbleItems) {
-      let by = item.y;
+      let by = Math.max(minTopY, item.y);
       let bx = Math.max(96, Math.min(farmViewport.clientWidth - 96, item.x));
 
       let collision = true;
@@ -612,20 +965,25 @@
         collision = false;
         for (const r of placedRects) {
           if (Math.abs(bx - r.x) < BUBBLE_W && Math.abs(by - r.y) < BUBBLE_H) {
-            by = r.y - BUBBLE_H - 4;
+            if (r.y - BUBBLE_H - 4 >= minTopY) {
+              by = r.y - BUBBLE_H - 4;
+            } else {
+              by = r.y + BUBBLE_H + 4;
+            }
             collision = true;
           }
         }
         guard++;
       }
 
+      by = Math.max(minTopY, by);
       placedRects.push({ x: bx, y: by });
 
       const bEl = document.createElement('div');
       bEl.className = 'speech-bubble' + (item.role === 'mandor' ? ` mandor-bubble ${item.moodClass}` : '');
       bEl.textContent = item.text;
       bEl.style.left = `${bx}px`;
-      bEl.style.top = `${Math.max(36, by)}px`;
+      bEl.style.top = `${by}px`;
       hudOverlay.appendChild(bEl);
     }
   }
@@ -644,6 +1002,32 @@
     }
 
     if (!activeCutscene) {
+      if (demoActive && demoCamera) {
+        const lerpFactor = Math.min(1, (dtMs / 1000) * 3.5);
+        camera.zoom += (demoCamera.zoom - camera.zoom) * lerpFactor;
+        camera.cx += (demoCamera.cx - camera.cx) * lerpFactor;
+        camera.cy += (demoCamera.cy - camera.cy) * lerpFactor;
+
+        const halfVisW = (BASE_W / 2) / camera.zoom;
+        const halfVisH = (BASE_H / 2) / camera.zoom;
+        camera.cx = Math.max(halfVisW, Math.min(BASE_W - halfVisW, camera.cx));
+        camera.cy = Math.max(halfVisH, Math.min(BASE_H - halfVisH, camera.cy));
+        camera.shakeX = 0;
+        camera.shakeY = 0;
+        camera.tx = Math.round(BASE_W / 2 - camera.cx * camera.zoom);
+        camera.ty = Math.round(BASE_H / 2 - camera.cy * camera.zoom);
+
+        if (demoSubtitle) {
+          cinematicLayer.classList.add('active');
+          cinematicLayer.classList.remove('praise', 'angry', 'slowmo');
+          cutsceneSubtitle.textContent = demoSubtitle;
+        } else {
+          cinematicLayer.classList.remove('active', 'praise', 'angry', 'slowmo');
+          cutsceneSubtitle.textContent = '';
+        }
+        return 1.0;
+      }
+
       camera.zoom = 1;
       camera.cx = BASE_W / 2;
       camera.cy = BASE_H / 2;
@@ -729,18 +1113,22 @@
     const rawDtMs = Math.min(100, Math.max(0, timestamp - lastTimestamp));
     lastTimestamp = timestamp;
 
+    if (demoActive) {
+      updateDemo(rawDtMs);
+    }
+
     const speedFactor = updateCutsceneAndCamera(rawDtMs, timestamp);
     const effDtMs = rawDtMs * speedFactor;
     virtualTime += effDtMs;
 
-    if (currentSnapshot) {
+    if (currentSnapshot && !demoActive) {
       syncEntitiesFromSnapshot(currentSnapshot, Date.now());
-      stepEntities(effDtMs / 1000);
     }
+    stepEntities(effDtMs / 1000);
 
     renderScene(virtualTime);
 
-    if (timestamp - lastHudSync > 90 || activeCutscene) {
+    if (timestamp - lastHudSync > 90 || activeCutscene || demoActive) {
       renderHudOverlay();
       lastHudSync = timestamp;
     }
@@ -826,6 +1214,7 @@
 
   // Init
   resizeCanvas();
+  checkUrlCutscene();
   initSSE();
   requestAnimationFrame(gameLoop);
 })();
