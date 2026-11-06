@@ -111,7 +111,12 @@ echo "🔗 Binding squad handles to orca-bridge..."
   "$BRIDGE" pair bind tukang "$h_coder" >/dev/null
 )
 
-# 6. Tampilkan status
+# 6. Squad Farm: live office animation in Orca browser
+FARM_LAUNCH="$MANDOR_HOME/plugins/squad-farm/launch.sh"
+[[ -f "$FARM_LAUNCH" ]] || FARM_LAUNCH="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)/plugins/squad-farm/launch.sh"
+[[ -f "$FARM_LAUNCH" ]] && bash "$FARM_LAUNCH" "$TARGET_DIR" || echo "⚠️  Squad Farm failed to start (see log)."
+
+# 7. Tampilkan status
 echo ""
 (cd "$TARGET_DIR" && "$BRIDGE" status) || true
 echo ""

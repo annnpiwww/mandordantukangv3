@@ -8,7 +8,7 @@ Realtime top-down (3/4 view) pixel-art office web view of the Orca multi-agent s
 
 ![Squad Office ZackD Films Cutscene](screenshots/cutscene.png)
 
-Runs as a 5th pane or auxiliary dashboard in Orca's embedded browser:
+`orca-squad [project_dir]` starts it automatically and opens it in Orca's embedded browser (can also be started manually with `plugins/squad-farm/launch.sh <project_dir>`). Manual run:
 ```bash
 node plugins/squad-farm/server.js --port 24300 --repo /path/to/project
 ```
