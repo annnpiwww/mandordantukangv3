@@ -1,0 +1,24 @@
+{
+ "task_type": "MEDIUM",
+ "objective": "Add applyCoupon(items, code) to src/cart.js: code 'HEMAT10' gives 10% off the pre-tax subtotal, unknown codes throw Error('invalid coupon'). Fix formatCents too if its test fails.",
+ "allowed_files": [
+  "src/cart.js",
+  "src/format.js",
+  "test/cart.test.js"
+ ],
+ "required_changes": [
+  "src/cart.js: export applyCoupon returning the taxed total after discount",
+  "test/cart.test.js: tests for HEMAT10 and invalid code"
+ ],
+ "acceptance_criteria": [
+  "applyCoupon([{cents:1000,qty:2}],'HEMAT10') === 1998",
+  "applyCoupon(items,'NOPE') throws 'invalid coupon'",
+  "npm test passes"
+ ],
+ "verification_command": "npm test",
+ "constraints": [
+  "keep cartTotal behaviour",
+  "no new dependencies"
+ ],
+ "expected_report": "1-line summary"
+}

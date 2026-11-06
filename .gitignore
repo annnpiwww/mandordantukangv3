@@ -1,0 +1,32 @@
+# Environment & secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.id_rsa
+*.id_ed25519
+*.secret
+
+# Logs & temp
+*.log
+/tmp/
+/dist/
+/build/
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.semantex/
+.codegraph/
+graphify-out/
+.omc/
+.serena/
+.gitnexus/
+profile.local.md

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Fake `orca` CLI for tests: terminals come from $FAKE_ORCA_TERMS, sends are appended to $FAKE_ORCA_LOG.
+set -euo pipefail
+case "${1:-} ${2:-}" in
+  "status "*|"open "*) exit "${FAKE_ORCA_STATUS_RC:-0}" ;;
+  "terminal list") cat "$FAKE_ORCA_TERMS" ;;
+  "terminal send")
+    shift 2; h=""; t=""
+    while [[ $# -gt 0 ]]; do case "$1" in --terminal) h="$2"; shift 2 ;; --text) t="$2"; shift 2 ;; *) shift ;; esac; done
+    [[ -z "${FAKE_ORCA_SEND_FAIL:-}" ]] || exit 1
+    printf -- '---SEND %s\n%s\n' "$h" "$t" >> "$FAKE_ORCA_LOG"
+    echo '{"result":{"ok":true}}'
+    ;;
+  "terminal wait") exit "${FAKE_ORCA_WAIT_RC:-0}" ;;
+  "terminal read") if [[ -n "${FAKE_ORCA_READ:-}" ]]; then cat "$FAKE_ORCA_READ"; else echo "fake output"; fi ;;
+  "terminal create")
+    shift 2; title=""; wt=""
+    while [[ $# -gt 0 ]]; do case "$1" in --title) title="$2"; shift 2 ;; --worktree) wt="${2#path:}"; shift 2 ;; *) shift ;; esac; done
+    h="term_new_$(printf '%s' "$title" | tr -cd 'a-zA-Z')"
+    node -e '
+      const fs = require("fs"); const [f, h, title, wt] = process.argv.slice(1);
+      const d = JSON.parse(fs.readFileSync(f, "utf8"));
+      d.result.terminals.push({ handle: h, title, worktreePath: wt, connected: true, writable: true });
+      fs.writeFileSync(f, JSON.stringify(d));' "$FAKE_ORCA_TERMS" "$h" "$title" "$wt"
+    echo "{\"result\":{\"terminal\":{\"handle\":\"$h\",\"title\":\"$title\"}}}"
+    ;;
+  *) echo "fake orca: unsupported: $*" >&2; exit 2 ;;
+esac

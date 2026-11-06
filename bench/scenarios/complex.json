@@ -1,0 +1,28 @@
+{
+ "task_type": "COMPLEX",
+ "objective": "Remove the duplicated TAX_RATE: create src/tax.js exporting TAX_RATE and withTax(cents); make price.js and cart.js use it; add test/tax.test.js; fix formatCents.",
+ "allowed_files": [
+  "src/tax.js",
+  "src/price.js",
+  "src/cart.js",
+  "src/format.js",
+  "test/tax.test.js"
+ ],
+ "required_changes": [
+  "src/tax.js: TAX_RATE = 0.11, withTax(cents) = Math.round(cents * (1 + TAX_RATE))",
+  "src/price.js and src/cart.js: import withTax, no local TAX_RATE",
+  "test/tax.test.js: withTax(1000) === 1110"
+ ],
+ "acceptance_criteria": [
+  "TAX_RATE defined only in src/tax.js",
+  "all existing tests pass unchanged",
+  "npm test passes"
+ ],
+ "verification_command": "npm test",
+ "constraints": [
+  "public exports of price.js and cart.js unchanged",
+  "no new dependencies"
+ ],
+ "expected_report": "1-line summary",
+ "isolate": true
+}
