@@ -31,7 +31,8 @@ Every task has: objective, explicit scope (`allowed_files`), expected outcome, a
 
 ## 4b. Understanding Gate (MEDIUM/COMPLEX, before the first edit)
 1. Read the spec, the files it names, and the matching skills. Then send ONE plan report and keep working:
-   `orca-bridge report PLAN --task <id> "goal: <1 line in your words> | steps: 1) ... 2) ... 3) ... | risks: <or none> | questions: none"`
+   `orca-bridge report PLAN --task <id> "goal: <1 line in your words> | steps: 1) ... 2) ... 3) ... | eta: <minutes>m | risks: <or none> | questions: none"`
+   `eta` = honest minutes until DONE, counted from this report. Running past it is fine; send a new PLAN with the revised eta instead of going silent.
 2. Ask instead of guessing when: the spec conflicts with the code, data the UI needs does not exist, the mockup/reference is ambiguous, an acceptance criterion cannot be met, or you see a clearly simpler/better design. Send
    `orca-bridge report QUESTION --task <id> "Q1: <question> | options: A) ... B) ... | my pick: A because ..."` and STOP until a message starting with `ANSWER <id>:` arrives. Questions for the user also go to Mandor; Mandor relays them.
 3. Message `CORRECTION <id>: ...` from Mandor after a PLAN: adjust and continue, no reply needed.

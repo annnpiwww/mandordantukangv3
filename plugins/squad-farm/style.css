@@ -1,0 +1,646 @@
+/* plugins/squad-farm/style.css */
+/* Top-down Pixel Art Office + DOM HUD + ZackD Films Cinematic Layer */
+
+:root {
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bg-dark: #12151c;
+  --panel-bg: rgba(22, 27, 36, 0.95);
+  --panel-border: #333d4e;
+  --panel-hover: #1e2532;
+  --text-main: #f0f4f8;
+  --text-muted: #9ba8b8;
+  --accent-gold: #f1c40f;
+  --accent-green: #2ecc71;
+  --accent-amber: #f39c12;
+  --accent-red: #e74c3c;
+  --accent-blue: #3498db;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-mono);
+  background: var(--bg-dark);
+  color: var(--text-main);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #181d26;
+  border-bottom: 2px solid #283040;
+  z-index: 100;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.repo-badge {
+  font-size: 13px;
+  font-weight: 700;
+  background: #232b38;
+  border: 1px solid #3a475d;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: #f1c40f;
+  letter-spacing: 0.5px;
+}
+
+.live-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 6px var(--accent-green);
+}
+
+.live-dot.connecting {
+  background: var(--accent-amber);
+  box-shadow: 0 0 6px var(--accent-amber);
+}
+
+.live-text {
+  color: var(--text-muted);
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  background: #232b38;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #333e50;
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.stat-value.gold {
+  color: var(--accent-gold);
+}
+
+/* Main Stage */
+.main-stage {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+
+/* Office Viewport & Canvas */
+.farm-viewport {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1c222d;
+  overflow: hidden;
+  min-width: 0;
+}
+
+#farmCanvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* HUD Overlay Layer for Pills, Bubbles & Desk Plates */
+.hud-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 15;
+}
+
+/* Name-tag Pill above Character Head */
+.name-pill {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: #ffffff;
+  color: #161b24;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1.5px solid #1e293b;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 16;
+}
+
+.name-pill:hover,
+.name-pill.highlighted {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.55), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.name-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.name-pill-dot.mandor { background: #d4ac0d; }
+.name-pill-dot.ui { background: #1abc9c; }
+.name-pill-dot.coder { background: #2ecc71; }
+.name-pill-dot.sec { background: #e67e22; }
+
+/* Task & ETA Chip inside Worker Pill or Desk Tag */
+.pill-task-chip {
+  font-size: 11px;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #1e293b;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.pill-eta-chip {
+  font-size: 11px;
+  font-weight: 700;
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 1px 5px;
+  border-radius: 4px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.pill-eta-chip.late {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.eta-mini-bar {
+  width: 100%;
+  min-width: 36px;
+  height: 2px;
+  background: rgba(30, 64, 175, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.eta-mini-fill {
+  height: 100%;
+  background: #2563eb;
+}
+
+.pill-eta-chip.late .eta-mini-bar {
+  background: rgba(146, 64, 14, 0.25);
+}
+
+.pill-eta-chip.late .eta-mini-fill {
+  background: #d97706;
+}
+
+/* Speech Bubble above Name-tag Pill */
+.speech-bubble {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: #ffffff;
+  color: #141923;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  max-width: 180px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  border: 1.5px solid #2c3e50;
+  pointer-events: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  z-index: 18;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px 5px 0;
+  border-style: solid;
+  border-color: #2c3e50 transparent;
+  display: block;
+  width: 0;
+}
+
+.speech-bubble.mandor-bubble {
+  background: #fef9e7;
+  border-color: #7d6608;
+}
+
+.speech-bubble.mandor-bubble.angry {
+  background: #fadbd8;
+  border-color: #922b21;
+  color: #78281f;
+}
+
+.speech-bubble.mandor-bubble.happy {
+  background: #d4efdf;
+  border-color: #196f3d;
+  color: #145a32;
+}
+
+.speech-bubble.mandor-bubble.impatient {
+  background: #fef3c7;
+  border-color: #b45309;
+  color: #78350f;
+}
+
+/* Offline Desk Plate */
+.offline-plate {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 23, 42, 0.9);
+  color: #94a3b8;
+  border: 1px solid #475569;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 14;
+}
+
+/* ZackD Films Cinematic Layer */
+.cinematic-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+  overflow: hidden;
+}
+
+.cinematic-vignette {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 250ms ease;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0) 35%, rgba(0, 0, 0, 0.78) 100%);
+}
+
+.cinematic-layer.active .cinematic-vignette {
+  opacity: 1;
+}
+
+.cinematic-tint {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.cinematic-layer.active.praise .cinematic-tint {
+  opacity: 1;
+  background: radial-gradient(circle at center, rgba(255, 215, 64, 0.28) 0%, rgba(243, 156, 18, 0.08) 55%, rgba(0, 0, 0, 0) 80%);
+}
+
+.cinematic-layer.active.angry .cinematic-tint {
+  opacity: 1;
+  background: radial-gradient(circle at center, rgba(231, 76, 60, 0.16) 0%, rgba(192, 57, 43, 0.45) 100%);
+  animation: red-pulse 320ms infinite alternate;
+}
+
+@keyframes red-pulse {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+
+.letterbox-bar {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 12%;
+  background: #05070a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1), opacity 350ms ease;
+  z-index: 32;
+}
+
+.letterbox-top {
+  top: 0;
+  transform: translateY(-100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  justify-content: flex-end;
+  padding: 0 20px;
+}
+
+.letterbox-bottom {
+  bottom: 0;
+  transform: translateY(100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0 24px;
+}
+
+.cinematic-layer.active .letterbox-top,
+.cinematic-layer.active .letterbox-bottom {
+  transform: translateY(0);
+}
+
+.cutscene-subtitle {
+  font-family: var(--font-sans);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+.cutscene-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1c40f;
+  background: rgba(241, 196, 15, 0.15);
+  border: 1px solid rgba(241, 196, 15, 0.45);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.8px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.cinematic-layer.slowmo .cutscene-badge {
+  opacity: 1;
+}
+
+/* State Badge */
+.state-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.state-badge.approved { background: #1e5631; color: #a3e4d7; }
+.state-badge.executing, .state-badge.assigned { background: #1f4e78; color: #aed6f1; }
+.state-badge.verifying { background: #7d6608; color: #f9e79f; }
+.state-badge.reviewing { background: #6c3483; color: #e8daef; }
+.state-badge.rejected, .state-badge.failed { background: #78281f; color: #f5b7b1; }
+.state-badge.pending { background: #4a5568; color: #cbd5e1; }
+.state-badge.idle { background: #2c3e50; color: #bdc3c7; }
+.state-badge.offline { background: #34495e; color: #7f8c8d; }
+
+/* Right Panel: Task Board */
+.task-panel {
+  width: 320px;
+  flex-shrink: 0;
+  background: var(--panel-bg);
+  border-left: 2px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+
+.task-panel-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.task-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent-gold);
+}
+
+.task-count {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.task-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-card {
+  background: #1a202c;
+  border: 1px solid #2d3748;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.task-card:hover {
+  background: var(--panel-hover);
+  border-color: #4a5568;
+}
+
+.task-card:focus {
+  outline: 2px solid var(--accent-gold);
+  border-color: var(--accent-gold);
+}
+
+.task-card.selected {
+  border-color: var(--accent-gold);
+  background: #242c3b;
+  box-shadow: 0 0 8px rgba(241, 196, 15, 0.3);
+}
+
+.task-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.task-id-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.task-obj {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #cbd5e1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Task ETA Row in Task Board */
+.task-eta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.task-eta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.task-eta-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(52, 152, 219, 0.18);
+  color: #93c5fd;
+  border: 1px solid rgba(52, 152, 219, 0.35);
+}
+
+.task-eta-badge.late {
+  background: rgba(243, 156, 18, 0.22);
+  color: #fcd34d;
+  border-color: #f59e0b;
+}
+
+.task-eta-progress {
+  width: 100%;
+  height: 4px;
+  background: #2d3748;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.task-eta-fill {
+  height: 100%;
+  background: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+.task-eta-fill.late {
+  background: #f59e0b;
+}
+
+.task-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.task-card-worker {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.task-card-worker.ui { color: #1abc9c; }
+.task-card-worker.coder { color: #2ecc71; }
+.task-card-worker.sec { color: #f39c12; }
+
+.task-empty {
+  padding: 30px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Accessibility live region (screen reader only) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .letterbox-bar {
+    transition: opacity 200ms ease !important;
+    transform: translateY(0) !important;
+    opacity: 0;
+  }
+  .cinematic-layer.active .letterbox-bar {
+    opacity: 1;
+  }
+  .cinematic-layer.active.angry .cinematic-tint {
+    animation: none !important;
+  }
+}

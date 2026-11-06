@@ -48,6 +48,8 @@ Panes configured:
 - Pane 3: Tukang Coder (Fast model, e.g. Gemini Flash) - Core Logic and Data
 - Pane 4: Tukang Security (Deep-reasoning model, e.g. Gemini Argon) - OWASP Security Core and Tests
 
+Optional 5th view, a live pixel-art office of the squad (who is working, waiting for review, idle, token spend, ETA): `node plugins/squad-farm/server.js --repo <project_dir>`, then open `http://127.0.0.1:24300` in Orca's browser. See [plugins/squad-farm/README.md](plugins/squad-farm/README.md).
+
 ## User Profile
 
 Personal communication preferences, shell command prefixes, and project release steps are configured in `profile.local.md` in your skill directory. Copy the provided template to get started:

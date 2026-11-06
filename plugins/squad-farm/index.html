@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Squad Office - Orca Realtime Pixel Art</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Accessibility Live Region for Screen Readers -->
+  <div id="liveAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Header Bar -->
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="repo-badge" id="repoName">Squad Office</span>
+      <div class="live-status">
+        <span class="live-dot" id="liveDot"></span>
+        <span class="live-text" id="liveText">Menyambungkan...</span>
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <div class="stat-item">
+        <span class="stat-label">Tokens:</span>
+        <span class="stat-value gold" id="totalTokens">0</span>
+      </div>
+      <div class="stat-item" id="costItem" style="display: none;">
+        <span class="stat-label">Cost:</span>
+        <span class="stat-value" id="totalCost">$0.00</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Stage -->
+  <main class="main-stage">
+    <!-- Pixel Office Viewport -->
+    <section class="farm-viewport" id="farmViewport">
+      <canvas id="farmCanvas" width="384" height="216" aria-label="Top-down pixel art office view of Mandor and specialized workers"></canvas>
+      <div class="hud-overlay" id="hudOverlay"></div>
+      <!-- ZackD Films Cinematic Layer -->
+      <div class="cinematic-layer" id="cinematicLayer" aria-hidden="true">
+        <div class="cinematic-tint" id="cinematicTint"></div>
+        <div class="cinematic-vignette" id="cinematicVignette"></div>
+        <div class="letterbox-bar letterbox-top" id="letterboxTop">
+          <span class="cutscene-badge" id="cutsceneBadge">SLOW-MO 0.4x</span>
+        </div>
+        <div class="letterbox-bar letterbox-bottom" id="letterboxBottom">
+          <div class="cutscene-subtitle" id="cutsceneSubtitle"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Task Board Panel -->
+    <aside class="task-panel" aria-label="Daftar Tugas Squad">
+      <div class="task-panel-header">
+        <span class="task-panel-title">Task Board</span>
+        <span class="task-count">24h History</span>
+      </div>
+      <div class="task-list" id="taskList" role="region" aria-label="Task Cards">
+        <!-- Rendered dynamically -->
+      </div>
+    </aside>
+  </main>
+
+  <script src="/behavior.js"></script>
+  <script src="/sprites.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
